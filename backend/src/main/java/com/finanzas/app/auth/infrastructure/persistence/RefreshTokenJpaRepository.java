@@ -11,7 +11,8 @@ import com.finanzas.app.auth.domain.RefreshToken;
 
 public interface RefreshTokenJpaRepository extends JpaRepository<RefreshToken, Long> {
 
-    Optional<RefreshToken> findByTokenHash(String tokenHash);
+    @Query("select r from RefreshToken r join fetch r.user where r.tokenHash = :tokenHash")
+    Optional<RefreshToken> findByTokenHash(@Param("tokenHash") String tokenHash);
 
     @Modifying(clearAutomatically = true)
     @Query("update RefreshToken r set r.revoked = true where r.user.id = :userId")
