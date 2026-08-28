@@ -1,10 +1,10 @@
-package com.finanzas.develop;
+package com.finanzas.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DevelopApplicationTests {
+class FinanzasApplicationTests {
 
 	@Test
 	void contextLoads() {

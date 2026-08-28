@@ -1,13 +1,13 @@
-package com.finanzas.develop;
+package com.finanzas.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DevelopApplication {
+public class FinanzasApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DevelopApplication.class, args);
+		SpringApplication.run(FinanzasApplication.class, args);
 	}
 
 }
