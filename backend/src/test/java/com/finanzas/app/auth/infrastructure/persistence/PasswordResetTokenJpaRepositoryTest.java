@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import com.finanzas.app.auth.domain.AuthProvider;
-import com.finanzas.app.auth.domain.RefreshToken;
+import com.finanzas.app.auth.domain.PasswordResetToken;
 import com.finanzas.app.auth.domain.Role;
 import com.finanzas.app.auth.domain.User;
 import com.finanzas.app.config.JpaAuditingConfig;
@@ -20,13 +20,13 @@ import jakarta.persistence.EntityManager;
 
 @DataJpaTest
 @Import(JpaAuditingConfig.class)
-class RefreshTokenJpaRepositoryTest {
+class PasswordResetTokenJpaRepositoryTest {
 
     @Autowired
     private UserJpaRepository userJpaRepository;
 
     @Autowired
-    private RefreshTokenJpaRepository refreshTokenJpaRepository;
+    private PasswordResetTokenJpaRepository passwordResetTokenJpaRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -41,43 +41,30 @@ class RefreshTokenJpaRepositoryTest {
         return userJpaRepository.saveAndFlush(user);
     }
 
-    private RefreshToken tokenFor(User user, String hash) {
-        RefreshToken token = new RefreshToken();
+    private PasswordResetToken tokenFor(User user, String hash) {
+        PasswordResetToken token = new PasswordResetToken();
         token.setUser(user);
         token.setTokenHash(hash);
-        token.setExpiresAt(Instant.now().plusSeconds(3600));
+        token.setExpiresAt(Instant.now().plusSeconds(1800));
         return token;
     }
 
     @Test
     void findsTokenByHash() {
         User user = persistedUser();
-        refreshTokenJpaRepository.saveAndFlush(tokenFor(user, "hash-1"));
+        passwordResetTokenJpaRepository.saveAndFlush(tokenFor(user, "hash-1"));
 
-        assertThat(refreshTokenJpaRepository.findByTokenHash("hash-1")).isPresent();
-        assertThat(refreshTokenJpaRepository.findByTokenHash("missing")).isEmpty();
-    }
-
-    @Test
-    void revokesAllTokensForUser() {
-        User user = persistedUser();
-        RefreshToken saved = refreshTokenJpaRepository.saveAndFlush(tokenFor(user, "hash-1"));
-        assertThat(saved.isRevoked()).isFalse();
-
-        refreshTokenJpaRepository.revokeAllForUser(user.getId());
-        refreshTokenJpaRepository.flush();
-
-        RefreshToken reloaded = refreshTokenJpaRepository.findByTokenHash("hash-1").orElseThrow();
-        assertThat(reloaded.isRevoked()).isTrue();
+        assertThat(passwordResetTokenJpaRepository.findByTokenHash("hash-1")).isPresent();
+        assertThat(passwordResetTokenJpaRepository.findByTokenHash("missing")).isEmpty();
     }
 
     @Test
     void loadsAssociatedUserEagerlyToAvoidLazyInitializationAfterSessionCloses() {
         User user = persistedUser();
-        refreshTokenJpaRepository.saveAndFlush(tokenFor(user, "hash-1"));
+        passwordResetTokenJpaRepository.saveAndFlush(tokenFor(user, "hash-1"));
         entityManager.clear();
 
-        RefreshToken reloaded = refreshTokenJpaRepository.findByTokenHash("hash-1").orElseThrow();
+        PasswordResetToken reloaded = passwordResetTokenJpaRepository.findByTokenHash("hash-1").orElseThrow();
 
         assertThat(Hibernate.isInitialized(reloaded.getUser())).isTrue();
         assertThat(reloaded.getUser().getEmail()).isEqualTo("jane@example.com");
