@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: finanzas-app
+
+  datasource:
+    url: jdbc:h2:mem:finanzas-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-only-secret-please-change-32-bytes-minimum
+    access-token-expiration-ms: 900000
+    refresh-token-expiration-ms: 1209600000
+  cors:
+    allowed-origin-patterns: "*"
+  mail:
+    sender: console
