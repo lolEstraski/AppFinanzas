@@ -9,6 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.finanzas.app.auth.domain.exception.EmailAlreadyInUseException;
+import com.finanzas.app.auth.domain.exception.InvalidCredentialsException;
+import com.finanzas.app.auth.domain.exception.InvalidOrExpiredTokenException;
 import com.finanzas.app.common.domain.exception.BusinessRuleViolationException;
 import com.finanzas.app.common.domain.exception.ResourceNotFoundException;
 
@@ -27,6 +30,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiError(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    public ResponseEntity<ApiError> handleEmailAlreadyInUse(EmailAlreadyInUseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidOrExpiredTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidOrExpiredToken(InvalidOrExpiredTokenException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
