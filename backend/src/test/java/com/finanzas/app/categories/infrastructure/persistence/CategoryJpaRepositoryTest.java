@@ -63,4 +63,16 @@ class CategoryJpaRepositoryTest {
         assertThat(categoryJpaRepository.existsVisibleToByNameIgnoreCase(owner.getId(), "comida")).isTrue();
         assertThat(categoryJpaRepository.existsVisibleToByNameIgnoreCase(owner.getId(), "Gasolina")).isFalse();
     }
+
+    @Test
+    void findsVisibleCategoryByIdButNotAnotherUsersCustomCategory() {
+        User owner = persistedUser("owner@example.com");
+        User other = persistedUser("other@example.com");
+        Category global = categoryJpaRepository.saveAndFlush(category("Comida", true, null));
+        Category ownedByOther = categoryJpaRepository.saveAndFlush(category("Viajes", false, other));
+
+        assertThat(categoryJpaRepository.findVisibleToById(owner.getId(), global.getId())).isPresent();
+        assertThat(categoryJpaRepository.findVisibleToById(owner.getId(), ownedByOther.getId())).isEmpty();
+        assertThat(categoryJpaRepository.findVisibleToById(owner.getId(), 9999L)).isEmpty();
+    }
 }
