@@ -50,7 +50,14 @@ class JwtTokenServiceTest {
     @Test
     void rejectsTamperedToken() {
         String token = jwtTokenService.generateAccessToken(sampleUser());
-        String tampered = token.substring(0, token.length() - 1) + (token.endsWith("a") ? "b" : "a");
+        // Tamper the first character of the signature segment rather than the last
+        // character of the token: a base64url group at the very end can carry
+        // padding bits that don't affect the decoded byte, which made this
+        // assertion flaky when it corrupted the tail instead.
+        int signatureStart = token.lastIndexOf('.') + 1;
+        char original = token.charAt(signatureStart);
+        char replacement = original == 'A' ? 'B' : 'A';
+        String tampered = token.substring(0, signatureStart) + replacement + token.substring(signatureStart + 1);
 
         assertThatThrownBy(() -> jwtTokenService.parseAndValidate(tampered))
                 .isInstanceOf(SignatureException.class);

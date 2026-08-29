@@ -1,6 +1,7 @@
 package com.finanzas.app.categories.infrastructure.persistence;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,11 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
     @Override
     public List<Category> findVisibleTo(Long userId) {
         return jpaRepository.findVisibleTo(userId);
+    }
+
+    @Override
+    public Optional<Category> findVisibleToById(Long userId, Long categoryId) {
+        return jpaRepository.findVisibleToById(userId, categoryId);
     }
 
     @Override
